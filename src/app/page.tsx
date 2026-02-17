@@ -12,11 +12,12 @@ export default function Home() {
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">정현주</h1>
             
             {/* 데스크톱 메뉴 */}
-            <div className="hidden md:flex gap-8">
+            <div className="hidden md:flex gap-8 items-center">
               <a href="#about" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</a>
               <a href="#skills" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Skills</a>
               <a href="#experience" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Experience</a>
               <a href="#projects" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Projects</a>
+              <a href="/coaching" className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">1:1 코칭</a>
               <a href="#contact" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</a>
             </div>
 
