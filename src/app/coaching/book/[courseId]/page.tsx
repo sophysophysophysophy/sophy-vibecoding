@@ -110,15 +110,29 @@ export default function BookingPage() {
       const tossPayments = (window as any).TossPayments(clientKey);
       const payment_sdk = tossPayments.payment({ customerKey: user.id });
       
+      // amount는 반드시 정수여야 함
+      const amount = Number(course.price);
+      if (isNaN(amount) || amount <= 0) {
+        throw new Error('결제 금액이 올바르지 않습니다.');
+      }
+      
       await payment_sdk.requestPayment({
         method: 'CARD',
-        amount: course.price,
+        amount: {
+          currency: 'KRW',
+          value: amount,
+        },
         orderId: orderId,
         orderName: course.title,
         successUrl: `${window.location.origin}/payment/success?bookingId=${booking.id}`,
         failUrl: `${window.location.origin}/payment/fail?bookingId=${booking.id}`,
         customerEmail: user.email,
         customerName: user.user_metadata?.full_name || '고객',
+        card: {
+          useEscrow: false,
+          useCardPoint: false,
+          useAppCardOnly: false,
+        },
       });
     } catch (error: any) {
       console.error('Booking error:', error);
