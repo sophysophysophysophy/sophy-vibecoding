@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid';
+import Script from 'next/script';
 
 export default function BookingPage() {
   const params = useParams();
@@ -17,6 +18,7 @@ export default function BookingPage() {
   const [bookingTime, setBookingTime] = useState("");
   const [notes, setNotes] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSdkLoaded, setIsSdkLoaded] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -60,6 +62,11 @@ export default function BookingPage() {
       return;
     }
 
+    if (!isSdkLoaded) {
+      alert('결제 시스템이 로딩 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -95,9 +102,15 @@ export default function BookingPage() {
       if (paymentError) throw paymentError;
 
       // 3. 토스페이먼츠 결제창으로 리다이렉트
-      const tossPayments = (window as any).TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+      if (!clientKey) {
+        throw new Error('토스페이먼츠 클라이언트 키가 설정되지 않았습니다.');
+      }
+
+      const tossPayments = (window as any).TossPayments(clientKey);
+      const payment_sdk = tossPayments.payment({ customerKey: user.id });
       
-      await tossPayments.requestPayment({
+      await payment_sdk.requestPayment({
         method: 'CARD',
         amount: course.price,
         orderId: orderId,
@@ -126,8 +139,19 @@ export default function BookingPage() {
   if (!course) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-20 px-4">
-      <div className="max-w-4xl mx-auto">
+    <>
+      {/* 토스페이먼츠 SDK */}
+      <Script
+        src="https://js.tosspayments.com/v2/standard"
+        onLoad={() => setIsSdkLoaded(true)}
+        onError={() => {
+          console.error('Failed to load TossPayments SDK');
+          alert('결제 시스템 로드에 실패했습니다. 페이지를 새로고침해주세요.');
+        }}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-20 px-4">
+        <div className="max-w-4xl mx-auto">
         {/* 뒤로가기 */}
         <button
           onClick={() => router.back()}
@@ -240,10 +264,10 @@ export default function BookingPage() {
             {/* 결제 버튼 */}
             <button
               type="submit"
-              disabled={isProcessing}
+              disabled={isProcessing || !isSdkLoaded}
               className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-lg font-semibold rounded-lg transition-colors shadow-lg"
             >
-              {isProcessing ? '처리 중...' : `${course.price.toLocaleString()}원 결제하기`}
+              {!isSdkLoaded ? '결제 시스템 로딩 중...' : isProcessing ? '처리 중...' : `${course.price.toLocaleString()}원 결제하기`}
             </button>
 
             <p className="text-center text-sm text-slate-500 dark:text-slate-400">
@@ -252,9 +276,7 @@ export default function BookingPage() {
           </form>
         </div>
       </div>
-
-      {/* 토스페이먼츠 SDK */}
-      <script src="https://js.tosspayments.com/v2/standard"></script>
     </div>
+    </>
   );
 }
