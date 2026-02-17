@@ -30,6 +30,18 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
+  // 구독 정보 가져오기
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select(`
+      *,
+      coaching_courses (*)
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* 네비게이션 */}
@@ -106,6 +118,85 @@ export default async function DashboardPage() {
                 {bookings?.filter(b => b.status === 'confirmed').length || 0}
               </div>
             </div>
+          </div>
+
+          {/* 정기 구독 섹션 */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl shadow-xl p-8 mb-12">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+              💎 정기 구독
+            </h2>
+            
+            {subscription && subscription.course_id ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                      {subscription.coaching_courses?.title || '구독 중'}
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      subscription.status === 'active'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                        : subscription.status === 'paused'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                    }`}>
+                      {subscription.status === 'active' ? '활성' : subscription.status === 'paused' ? '일시정지' : '취소됨'}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">월 결제 금액</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {subscription.amount?.toLocaleString()}원
+                      </span>
+                    </div>
+                    {subscription.next_payment_date && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600 dark:text-slate-400">다음 결제일</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          {new Date(subscription.next_payment_date).toLocaleDateString('ko-KR')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col justify-center gap-3">
+                  <Link
+                    href="/billing/subscribe"
+                    className="px-6 py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-lg font-medium text-center transition-colors border border-slate-200 dark:border-slate-600"
+                  >
+                    구독 관리
+                  </Link>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
+                    매월 자동 결제로 편리하게 코칭을 받으세요
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-slate-600 dark:text-slate-400 mb-6">
+                  정기 구독으로 매월 자동 결제하고 1:1 코칭을 편하게 받아보세요!
+                  <br />
+                  카드를 등록하면 매달 알아서 결제되고 세션이 예약됩니다.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link
+                    href="/billing/register"
+                    className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold transition-all"
+                  >
+                    카드 등록하고 시작하기
+                  </Link>
+                  <Link
+                    href="/billing/subscribe"
+                    className="px-8 py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-lg font-medium transition-colors border border-slate-200 dark:border-slate-600"
+                  >
+                    자세히 보기
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 예약 내역 */}

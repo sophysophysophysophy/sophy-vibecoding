@@ -7,9 +7,9 @@
 NEXT_PUBLIC_SUPABASE_URL=https://knnviwdaijqyhlxygfck.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtubnZpd2RhaWpxeWhseHlnZmNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMDQ4MjIsImV4cCI6MjA4Njc4MDgyMn0.FiimJ-lt1aC0-Vc4IG4zTPyWTVGlfa0_SHhEyPpfzoo
 
-# Toss Payments (테스트 키 - 실제 배포시 교체 필요)
-NEXT_PUBLIC_TOSS_CLIENT_KEY=test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm
-TOSS_SECRET_KEY=test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
+# Toss Payments (API 개별 연동 키)
+NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_yZqmkKeP8g7ORnlJ7LoB8bQRxB9l
+TOSS_SECRET_KEY=test_sk_P9BRQmyarYYWPEBZLMaXrJ07KzLN
 ```
 
 ## 주의사항
